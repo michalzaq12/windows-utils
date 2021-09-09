@@ -1,0 +1,16 @@
+{
+  "name": "visual-effects",
+  "version": "0.0.1",
+  "author": "Michał Zarach",
+  "description": "Disable system visual effects to boost performance",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "nan": "^2.7.0"
+  },
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "gypfile": true
+}
