@@ -4,13 +4,15 @@
   "author": "Michał Zarach",
   "description": "Disable system visual effects to boost performance",
   "main": "index.js",
-  "private": true,
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "test": "node test/test.js"
+  },
   "dependencies": {
-    "bindings": "~1.2.1",
     "nan": "^2.7.0"
   },
-  "scripts": {
-    "test": "node test/test.js"
+  "devDependencies": {
+    "node-gyp": "^7.0.0"
   },
   "gypfile": true
 }
