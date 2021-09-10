@@ -2,11 +2,16 @@
   "targets": [
     {
       "target_name": "visualEffects",
-	  "include_dirs" : [
+	    "include_dirs" : [
         "src",
         "<!(node -e \"require('nan')\")"
-	  ],
-      "sources": [ "src/visualEffects.cc" ]
+	    ],
+      "sources": [ ],
+      "conditions": [
+        ['OS=="win"', {
+          "sources": ["src/visualEffects.cc"],
+        }]
+      ],
     }
   ]
 }
