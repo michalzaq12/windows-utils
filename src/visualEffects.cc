@@ -37,9 +37,31 @@ NAN_METHOD(VisualEffects)
 	info.GetReturnValue().Set(true);
 }
 
+NAN_METHOD(GetInputDesktop) {
+	BOOL	bRet = false;
+    DWORD	dwLengthNeeded;
+
+    HDESK	hNewDesktop;
+    char	strInputDesktop[256];
+
+    hNewDesktop = OpenInputDesktop(0, FALSE, MAXIMUM_ALLOWED);
+	if (hNewDesktop == NULL) {
+		return info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), "").ToLocalChecked());
+	}
+    
+    memset(strInputDesktop, 0, sizeof(strInputDesktop));
+    GetUserObjectInformation(hNewDesktop, UOI_NAME, &strInputDesktop, sizeof(strInputDesktop), &dwLengthNeeded);
+
+    CloseDesktop(hNewDesktop);
+
+    info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), strInputDesktop).ToLocalChecked());
+}
+
+
 void Initialize(Local<v8::Object> exports)
 {
   Nan::SetMethod(exports, "setVisualEffects", VisualEffects);
+  Nan::SetMethod(exports, "getInputDesktop", GetInputDesktop);
 }
 
 NODE_MODULE(visualEffects, Initialize)
