@@ -14,11 +14,6 @@ NAN_METHOD(VisualEffects)
 	}
 	bool enabled = Nan::To<bool>(info[0]).FromJust();
 
-    // wallpaper
-	// https://stackoverflow.com/questions/35716843/how-to-restore-undo-desktop-wallpaper-after-changing
-	// https://stackoverflow.com/questions/34710677/systemparametersinfo-sets-wallpaper-completly-black-using-spi-setdeskwallpaper
-	// SystemParametersInfo(SPI_SETDESKWALLPAPER, enabled, L"", 0);
-
 	// visual effects
 	SystemParametersInfo(SPI_SETUIEFFECTS, enabled, NULL, 0);
 	SystemParametersInfo(SPI_SETMENUANIMATION, enabled, NULL, 0);
@@ -57,11 +52,64 @@ NAN_METHOD(GetInputDesktop) {
     info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), strInputDesktop).ToLocalChecked());
 }
 
+NAN_METHOD(GetWallpaperPath) {
+	char bgPath[MAX_PATH];
+	if (SystemParametersInfoA(SPI_GETDESKWALLPAPER, MAX_PATH, bgPath, 0))
+	{
+		info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), bgPath).ToLocalChecked());
+	}
+	else {
+		info.GetReturnValue().SetUndefined();
+	}
+}
+
+HCURSOR createBlankCursor()
+{
+	int cw = GetSystemMetrics(SM_CXCURSOR);
+	int ch = GetSystemMetrics(SM_CYCURSOR);
+	UINT8* cursorAND = new UINT8[ch * ((cw + 31) >> 2)];
+	UINT8* cursorXOR = new UINT8[ch * ((cw + 31) >> 2)];
+	memset(cursorAND, 0xff, ch * ((cw + 31) >> 2));
+	memset(cursorXOR, 0x00, ch * ((cw + 31) >> 2));
+	HCURSOR c = CreateCursor(GetModuleHandle(NULL),
+		0, 0, cw, ch, cursorAND, cursorXOR);
+	delete[] cursorXOR;
+	delete[] cursorAND;
+	return c;
+}
+
+NAN_METHOD(_ShowCursor) {
+	bool show = Nan::To<bool>(info[0]).FromJust();
+	if (show) SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+	else {
+		// https://github.com/Rick-laboratory/Instruction-Receiver/blob/master/main.cpp#L97
+		// Make all built-in system cursors invisible 
+		// (Can not use SetCursor / ShowCursor methods since they are only linked to the thread window)
+		SetSystemCursor(createBlankCursor(), 32512);
+		SetSystemCursor(createBlankCursor(), 32650);
+		SetSystemCursor(createBlankCursor(), 32515);
+		SetSystemCursor(createBlankCursor(), 32649);
+		SetSystemCursor(createBlankCursor(), 32651);
+		SetSystemCursor(createBlankCursor(), 32513);
+		SetSystemCursor(createBlankCursor(), 32648);
+		SetSystemCursor(createBlankCursor(), 32646);
+		SetSystemCursor(createBlankCursor(), 32643);
+		SetSystemCursor(createBlankCursor(), 32645);
+		SetSystemCursor(createBlankCursor(), 32642);
+		SetSystemCursor(createBlankCursor(), 32644);
+		SetSystemCursor(createBlankCursor(), 32516);
+		SetSystemCursor(createBlankCursor(), 32514);
+		DestroyCursor(createBlankCursor());
+	}
+}
+
 
 void Initialize(Local<v8::Object> exports)
 {
   Nan::SetMethod(exports, "setVisualEffects", VisualEffects);
   Nan::SetMethod(exports, "getInputDesktop", GetInputDesktop);
+  Nan::SetMethod(exports, "getWallpaperPath", GetWallpaperPath);
+  Nan::SetMethod(exports, "showCursor", _ShowCursor);
 }
 
 NODE_MODULE(visualEffects, Initialize)
