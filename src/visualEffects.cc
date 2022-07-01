@@ -80,10 +80,12 @@ HCURSOR createBlankCursor()
 
 NAN_METHOD(_ShowCursor) {
 	bool show = Nan::To<bool>(info[0]).FromJust();
-	if (show) SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
-	else {
+	if (show) {
+		// Reloads the system cursors
+		SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+	} else {
 		// https://github.com/Rick-laboratory/Instruction-Receiver/blob/master/main.cpp#L97
-		// Make all built-in system cursors invisible 
+		// Make all built-in system cursors blank 
 		// (Can not use SetCursor / ShowCursor methods since they are only linked to the thread window)
 		SetSystemCursor(createBlankCursor(), 32512);
 		SetSystemCursor(createBlankCursor(), 32650);
