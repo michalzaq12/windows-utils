@@ -105,6 +105,21 @@ NAN_METHOD(_ShowCursor) {
 	}
 }
 
+NAN_METHOD(_SetDPI) {
+	int dpi = Nan::To<int>(info[0]).FromJust();
+	// dpi = 0 : 100% (default)
+	// dpi = 1 : 125% 
+	// dpi = 2 : 150% 
+	// dpi = 3 : 175% 
+	SystemParametersInfo(0x009F, dpi, NULL, 1);
+
+	// It set system DPI (not per device DPI)
+	// Per device DPI implementations: 
+	// https://github.com/lihas/windows-DPI-scaling-sample
+	// https://github.com/imniko/SetDPI/blob/master/SetDpi.cpp
+	// ISSUE: Can not map device to id (Electron deviceId = Hash(monitorInfo.szDevice))
+}
+
 
 void Initialize(Local<v8::Object> exports)
 {
@@ -112,6 +127,7 @@ void Initialize(Local<v8::Object> exports)
   Nan::SetMethod(exports, "getInputDesktop", GetInputDesktop);
   Nan::SetMethod(exports, "getWallpaperPath", GetWallpaperPath);
   Nan::SetMethod(exports, "showCursor", _ShowCursor);
+  Nan::SetMethod(exports, "setDPI", _SetDPI);
 }
 
 NODE_MODULE(visualEffects, Initialize)
